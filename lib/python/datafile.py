@@ -193,7 +193,8 @@ class Data(object):
             self.galactic_longitude = float(l[0])
             self.galactic_latitude = float(b[0])
         else:
-            raise ValueError("Bad number of matches (%d) in coords table!" % len(matches))
+            raise ValueError("Bad number of matches (%d) in coords table! " \
+                             "(Files: %s)" % (len(matches), ", ".join(self.fns)))
 
     # These are class methods.
     # They don't need to be called with an instance.
@@ -487,7 +488,7 @@ class MockPsrfitsData(PsrfitsData):
         outbasenm = "%(projid)s.%(date)s.%(source)s.b%(beam)s.%(scan)s" % \
                         fnmatchdict
         
-        outfile = outbasenm + ".00001.fits" # '00001' added is the filenumber
+        outfile = outbasenm + "_0001.fits" # '0001' added is the filenumber
 
         # Clobber output file
         #if os.path.exists(outfile):
@@ -501,7 +502,7 @@ class MockPsrfitsData(PsrfitsData):
         rowdelcmd = "fitsdelrow %s[SUBINT] 1 7" % outfile
         pipeline_utils.execute(rowdelcmd)
         
-        # Rename file to remove the '00001' that was added
+        # Rename file to remove the '_0001' that was added
         os.rename(outfile, outbasenm+'.fits')
 
         return [outbasenm+'.fits']
@@ -526,7 +527,7 @@ class MergedMockPsrfitsData(PsrfitsData):
         # Parse filename to get the scan number
         m = self.fnmatch(fitsfns[0])
         self.beam_id = int(m.groupdict()['beam'])
-        self.get_correct_positions()
+        self.get_correct_positions() # This sets self.right_ascension, etc.
         self.scan_num = m.groupdict()['scan']
         self.obs_name = '.'.join([self.project_id, self.source_name, \
                                     str(int(self.timestamp_mjd)), \
